@@ -48,6 +48,7 @@ EXPOSE 8332 8333 18332 18333
 
 VOLUME /conf /data
 ADD /bitcoin.conf /conf/bitcoin.conf
+ADD /entrypoint.sh /
 
 ENTRYPOINT [ "/entrypoint.sh" ]
 # CMD []
