@@ -46,8 +46,8 @@ RUN adduser -Ds /bin/false bitcoin && \
 # ports possible for exposure
 EXPOSE 8332 8333 18332 18333
 
-ADD /bitcoin.conf /conf
 VOLUME /conf /data
+ADD /bitcoin.conf /conf/bitcoin.conf
 
 ENTRYPOINT [ "/entrypoint.sh" ]
 # CMD []
