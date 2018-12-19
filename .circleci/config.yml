@@ -32,7 +32,6 @@ jobs:
         run:
           name: Build docker image
           command: |
-
             docker-build -v $VERSION -l "$LATESTS" "$NAMESPACE/$PROJECT" \
               --build-arg release=${VERSION} \
               --build-arg version=${VERSION%%-*} \
@@ -46,6 +45,14 @@ jobs:
             [ -n "${CIRCLE_TAG}" ] || exit 0
 
             docker-push -r "^$NAMESPACE/$PROJECT:?.*"
-
             # update microbadger
             # curl -XPOST "https://hooks.microbadger.com/images/${NAMESPACE}/${PROJECT}/${MICROBADGER_TOKEN}"
+
+workflows:
+  version: 2
+  default:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^([0-9]+\.?)+.*/
