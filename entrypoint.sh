@@ -2,11 +2,13 @@
 export BITCOIN_DATA=/data
 
 DAEMON=/usr/local/bin/bitcoind
-BITCOIN_ARGS="-conf=/conf/bitcoin.conf -datadir=${BITCOIN_DATA}"
+BITCOIN_ARGS="-conf=/data/bitcoin.conf -datadir=${BITCOIN_DATA}"
 
-# Set default RPC user and password (if not configured yet)
-sed -i 's/^ *\# *rpcuser=.*/rpcuser=bitcoinrpc/' /conf/bitcoin.conf
-sed -i 's/^ *\# *rpcuser=.*/rpcpassword=bitcoinrpcpass/' /conf/bitcoin.conf
+# Default config if none exists
+if [ ! -r /data/bitcoin.conf ]; then
+  cp /usr/local/share/bitcoin-core/bitcoin.conf /data/
+  chmod 0600 /data/bitcoin.conf
+fi
 
 if ( which "$1" &> /dev/null ) || [ -x "$1" ]; then
 # command line entry detected

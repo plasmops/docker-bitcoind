@@ -9,7 +9,7 @@ ENV LANG=C.UTF-8 \
     GLIBC_APKVER=2.28-r0 \
     BITCOIN_VERSION=${version}
 
-RUN adduser -Ds /bin/false bitcoin && \
+RUN \
 # boost boost-program_options libevent libressl libzm
   apk --virtual .deps --no-cache --update add gnupg tar curl && \
 # glibc compatibility
@@ -38,18 +38,17 @@ RUN adduser -Ds /bin/false bitcoin && \
   curl -#SL https://bitcoin.org/laanwj-releases.asc | gpg --import && \
   gpg --batch --verify SHA256SUMS.asc && \
   tar -xzf *.tar.gz --strip-components 1 -C /usr/local && rm -rf /usr/local/share/man && \
+# populate fs
+  mkdir /data /usr/local/share/bitcoin-core/ && chmod 700 /data && chown 1000:1000 /data && \
 # cleanup
   apk del .deps glibc-i18n && rm -rf /etc/apk/keys/sgerrand.rsa.pub /tmp/*
 
 # ports possible for exposure
 EXPOSE 8332 8333 18332 18333
 
-VOLUME /conf /data
-ADD /bitcoin.conf /conf/bitcoin.conf
+ADD /bitcoin.conf /usr/local/share/bitcoin-core/
 ADD /entrypoint.sh /
-
-RUN chown 1000:1000 /conf/bitcoin.conf /data && \
-    chmod 700 /data && chmod 600 /conf/bitcoin.conf
+RUN chown 1000:1000 /data && chmod 700 /data
 
 USER 1000:1000
 ENTRYPOINT [ "/entrypoint.sh" ]
