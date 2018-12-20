@@ -10,9 +10,8 @@ ENV LANG=C.UTF-8 \
     BITCOIN_VERSION=${version}
 
 RUN adduser -Ds /bin/false bitcoin && \
-# default packages
 # boost boost-program_options libevent libressl libzm
-  apk add --no-cache --update curl su-exec && \ 
+  apk --virtual .deps --no-cache --update add gnupg tar curl && \
 # glibc compatibility
   cd /tmp && echo \
     "-----BEGIN PUBLIC KEY-----\
@@ -33,7 +32,6 @@ RUN adduser -Ds /bin/false bitcoin && \
   echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
   /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap ${LANG#*.} ${LANG} || true && \
 # install bitcoind
-  apk --virtual .deps --no-cache --update add gnupg tar && \
   cd /tmp && export GNUPGHOME=/tmp && \
   curl --remote-name-all -#SL \
     "https://bitcoin.org/bin/bitcoin-core-${version}/{SHA256SUMS.asc,bitcoin-${version}-x86_64-linux-gnu.tar.gz}" && \
@@ -50,5 +48,9 @@ VOLUME /conf /data
 ADD /bitcoin.conf /conf/bitcoin.conf
 ADD /entrypoint.sh /
 
+RUN chown 1000:1000 /conf/bitcoin.conf /data && \
+    chmod 700 /data && chmod 600 /conf/bitcoin.conf
+
+USER 1000:1000
 ENTRYPOINT [ "/entrypoint.sh" ]
 # CMD []
